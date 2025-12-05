@@ -1,6 +1,34 @@
 import streamlit as st
 import requests
 from datetime import datetime
+import random
+import base64
+
+# Fonction pour convertir une image en base64
+def get_base64_image(image_path):
+    """Convertit une image en base64 pour l'inclure dans le HTML"""
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+# Fonction pour obtenir un commentaire marseillais selon le prix
+def get_marseillais_comment(fare):
+    """Retourne un commentaire marseillais aléatoire selon le prix et une image"""
+    # Choisir une image aléatoire parmi les 3
+    images = ["images/Rene.png", "images/Bengous.png", "images/JuL.png"]
+    selected_image = random.choice(images)
+
+    if fare < 10:
+        phrases_cher = [
+            "Oh papa ! C'est trop cher ! Marche avec les pieds !",
+            "Oh le sang, c'est moins cher d'acheter un petit Piaggio !"
+        ]
+        return random.choice(phrases_cher), selected_image
+    else:
+        phrases_pas_cher = [
+            "Hééé Vazy Harpagon ! Lache les belins !",
+            "Hééé Frero ! Paye le Taxi, je paye le Pastis !"
+        ]
+        return random.choice(phrases_pas_cher), selected_image
 
 # Fonction pour obtenir l'adresse à partir des coordonnées
 @st.cache_data(ttl=3600)
@@ -70,7 +98,7 @@ def get_coords_from_address(address):
 
 # Configuration de la page - Layout centré comme une app mobile
 st.set_page_config(
-    page_title="🚕 TaxiFare",
+    page_title="🚕 Tcha vu Taxi ?",
     page_icon="🚕",
     layout="centered",
     initial_sidebar_state="collapsed"
@@ -96,7 +124,7 @@ st.markdown("""
         max-width: 480px;
         padding: 0;
         font-family: 'Poppins', sans-serif;
-        background: #1a1a1a;
+        background: linear-gradient(180deg, #1a3a52 0%, #2c5f7f 100%);
     }
 
     .block-container {
@@ -105,7 +133,7 @@ st.markdown("""
 
     /* Hero Header */
     .hero-header {
-        background: linear-gradient(160deg, #FFC837 0%, #FF8008 100%);
+        background: linear-gradient(160deg, #0077be 0%, #00a8e8 100%);
         padding: 3rem 1.5rem 3.5rem;
         margin: -1.5rem -1rem 2rem;
         position: relative;
@@ -119,7 +147,7 @@ st.markdown("""
         right: -20%;
         width: 300px;
         height: 300px;
-        background: rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.15);
         border-radius: 50%;
     }
 
@@ -130,11 +158,9 @@ st.markdown("""
         left: -10%;
         width: 200px;
         height: 200px;
-        background: rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.1);
         border-radius: 50%;
-    }
-
-    .hero-title {
+    }    .hero-title {
         color: white;
         font-size: 3rem;
         font-weight: 700;
@@ -149,8 +175,10 @@ st.markdown("""
     .hero-emoji {
         display: inline-block;
         animation: bounce 2s ease-in-out infinite;
-        font-size: 3.5rem;
-        margin-right: 0.3rem;
+        height: 3.5rem;
+        width: auto;
+        margin-right: 0.5rem;
+        vertical-align: middle;
         filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
     }
 
@@ -196,12 +224,12 @@ st.markdown("""
 
     /* Input groups */
     .input-group {
-        background: linear-gradient(135deg, rgba(255, 200, 55, 0.15) 0%, rgba(255, 128, 8, 0.15) 100%);
+        background: linear-gradient(135deg, rgba(0, 119, 190, 0.15) 0%, rgba(0, 168, 232, 0.15) 100%);
         padding: 0;
         border-radius: 16px;
         margin-bottom: 1rem;
-        box-shadow: 0 2px 12px rgba(255, 128, 8, 0.2);
-        border: 1px solid rgba(255, 200, 55, 0.3);
+        box-shadow: 0 2px 12px rgba(0, 119, 190, 0.2);
+        border: 1px solid rgba(0, 168, 232, 0.3);
         overflow: hidden;
     }
 
@@ -210,7 +238,7 @@ st.markdown("""
         align-items: center;
         gap: 0.5rem;
         color: #ffffff;
-        background: linear-gradient(160deg, rgba(255, 200, 55, 0.7) 0%, rgba(255, 128, 8, 0.7) 100%);
+        background: linear-gradient(160deg, rgba(0, 119, 190, 0.7) 0%, rgba(0, 168, 232, 0.7) 100%);
         font-weight: 600;
         font-size: 0.95rem;
         margin: 0;
@@ -232,7 +260,7 @@ st.markdown("""
     .stTimeInput > div > div > input,
     .stTextInput > div > div > input {
         border-radius: 10px;
-        border: 1.5px solid rgba(255, 200, 55, 0.3);
+        border: 1.5px solid rgba(0, 168, 232, 0.3);
         padding: 0.6rem 0.8rem;
         font-size: 0.95rem;
         background: rgba(0, 0, 0, 0.4);
@@ -246,7 +274,7 @@ st.markdown("""
     /* Boutons */
     .stButton > button {
         width: 100%;
-        background: linear-gradient(160deg, #FFC837 0%, #FF8008 100%);
+        background: linear-gradient(160deg, #0077be 0%, #00a8e8 100%);
         color: white;
         border: none;
         padding: 1.1rem;
@@ -254,13 +282,13 @@ st.markdown("""
         font-size: 1.15rem;
         font-weight: 600;
         margin-top: 0.5rem;
-        box-shadow: 0 6px 20px rgba(255, 128, 8, 0.35);
+        box-shadow: 0 6px 20px rgba(0, 119, 190, 0.35);
         transition: transform 0.2s;
     }
 
     .stButton > button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(255, 128, 8, 0.45);
+        box-shadow: 0 8px 25px rgba(0, 168, 232, 0.45);
     }
 
     /* Map button style */
@@ -277,11 +305,11 @@ st.markdown("""
     /* Prix display */
     .price-display {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2.5rem 1.5rem;
-        border-radius: 20px;
+        padding: 1rem 0.8rem;
+        border-radius: 12px;
         text-align: center;
-        margin: 1.5rem 0;
-        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+        margin: 1rem 0;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
         position: relative;
         overflow: hidden;
     }
@@ -289,22 +317,22 @@ st.markdown("""
     .price-display::before {
         content: '💰';
         position: absolute;
-        top: -20px;
-        right: -20px;
-        font-size: 8rem;
+        top: -15px;
+        right: -15px;
+        font-size: 3.5rem;
         opacity: 0.1;
     }
 
     .price-label {
-        color: rgba(255,255,255,0.9);
-        font-size: 0.9rem;
+        color: rgba(255,255,255,0.85);
+        font-size: 0.7rem;
         font-weight: 400;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.2rem;
     }
 
     .price-amount {
         color: white;
-        font-size: 3.5rem;
+        font-size: 2rem;
         font-weight: 700;
         margin: 0;
         position: relative;
@@ -348,17 +376,29 @@ st.markdown("""
 
     /* Captions */
     .stCaptionContainer p {
-        color: rgba(255, 200, 55, 0.8) !important;
+        color: rgba(0, 168, 232, 0.8) !important;
+    }
+
+    /* Image marseillaise */
+    .marseillais-image {
+        display: inline-block;
+        animation: bounce 2s ease-in-out infinite;
+        height: 5rem;
+        width: auto;
+        margin-right: 1rem;
+        vertical-align: middle;
+        border-radius: 50%;
+        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
     }
 
     /* Footer */
     .app-footer {
         text-align: center;
-        color: rgba(255, 200, 55, 0.6);
+        color: rgba(0, 168, 232, 0.6);
         font-size: 0.8rem;
         margin-top: 3rem;
         padding: 1.5rem 0;
-        border-top: 1px solid rgba(255, 200, 55, 0.2);
+        border-top: 1px solid rgba(0, 168, 232, 0.2);
     }
 
     /* Hide Streamlit branding */
@@ -372,15 +412,15 @@ st.markdown("""
 st.markdown("""
     <div class="hero-header">
         <div class="hero-title">
-            <span class="hero-emoji">🚕</span>TaxiFare
+            <img src="data:image/png;base64,{img_base64}" class="hero-emoji"/>Tcha vu Taxi ?
         </div>
-        <div class="hero-subtitle">🚋 Un taxi grâce au Wagon 🚋</div>
+        <div class="hero-subtitle">⚓ Toute la bienveillance d'un vrai Taxi Marseillais ⚓</div>
     </div>
-""", unsafe_allow_html=True)
+""".format(img_base64=get_base64_image("images/taxi2.png")), unsafe_allow_html=True)
 
-# Section Date & Heure
+# Section Date & HeureT
 st.markdown('<div class="input-group">', unsafe_allow_html=True)
-st.markdown('<div class="input-label"><span class="icon">🕐</span> Quand partez-vous ?</div>', unsafe_allow_html=True)
+st.markdown('<div class="input-label"><span class="icon">🕐</span> Quand tu pars ?</div>', unsafe_allow_html=True)
 st.markdown('<div class="input-content">', unsafe_allow_html=True)
 col1, col2 = st.columns(2)
 with col1:
@@ -392,7 +432,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 
 # Section Départ
 st.markdown('<div class="input-group">', unsafe_allow_html=True)
-st.markdown('<div class="input-label"><span class="icon">📍</span> Point de départ</div>', unsafe_allow_html=True)
+st.markdown('<div class="input-label"><span class="icon">📍</span> De où ?</div>', unsafe_allow_html=True)
 st.markdown('<div class="input-content">', unsafe_allow_html=True)
 
 # Champ de saisie d'adresse
@@ -427,7 +467,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 
 # Section Destination
 st.markdown('<div class="input-group">', unsafe_allow_html=True)
-st.markdown('<div class="input-label"><span class="icon">🎯</span> Destination</div>', unsafe_allow_html=True)
+st.markdown('<div class="input-label"><span class="icon">🎯</span>A où ?</div>', unsafe_allow_html=True)
 st.markdown('<div class="input-content">', unsafe_allow_html=True)
 
 # Champ de saisie d'adresse
@@ -462,7 +502,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 
 # Section Passagers
 st.markdown('<div class="input-group">', unsafe_allow_html=True)
-st.markdown('<div class="input-label"><span class="icon">👥</span> Nombre de passagers</div>', unsafe_allow_html=True)
+st.markdown('<div class="input-label"><span class="icon">👥</span> Tchi va seul ?</div>', unsafe_allow_html=True)
 st.markdown('<div class="input-content">', unsafe_allow_html=True)
 passenger_count = st.select_slider(
     "Passagers",
@@ -508,11 +548,22 @@ if predict_button:
                 prediction = response.json()
                 fare = prediction.get('fare', 0)
 
+                # Obtenir le commentaire marseillais et l'image
+                comment, marseillais_image = get_marseillais_comment(fare)
+
                 # Affichage du prix moderne
                 st.markdown(f"""
                     <div class="price-display">
                         <div class="price-label">Tarif estimé de votre course</div>
                         <div class="price-amount">${fare:.2f}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+
+                # Affichage du commentaire marseillais avec image
+                st.markdown(f"""
+                    <div style="background: #e3f2fd; padding: 2rem 1.5rem; border-radius: 14px; border-left: 5px solid #0077be; margin: 1.5rem 0;">
+                        <img src="data:image/png;base64,{get_base64_image(marseillais_image)}" class="marseillais-image"/>
+                        <span style="color: #0077be; font-weight: 600; font-size: 1.2rem; line-height: 1.6;">💬 {comment}</span>
                     </div>
                 """, unsafe_allow_html=True)
 
